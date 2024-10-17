@@ -12,15 +12,16 @@ return new class extends Migration
             $table->id(); // Tambahkan id jika belum ada
             $table->string('item_code');
             $table->string('item_name');
-            $table->foreignId('loan_status_id')->constrained('loan_statuses')->onDelete('cascade');
-            $table->foreignId('item_type_id')->constrained('item_types')->onDelete('cascade');
-            $table->foreignId('item_category_id')->constrained('item_categories')->onDelete('cascade');
-            $table->foreignId('item_condition_id')->constrained('item_conditions')->onDelete('cascade');
+            $table->enum('condition_name', ['Baik', 'Rusak'])->default('Baik'); 
+            $table->enum('loan_status', ['Dipinjam', 'Tersedia'])->default('Tersedia');
+            $table->enum('type_name', ['Barang Baru', 'Barang Lama'])->default('Barang Baru');
+            $table->enum('category_name', ['Barang Jangka Panjang', 'Barang Habis Pakai'])->default('Barang Jangka Panjang');
             $table->foreignId('storage_location_id')->constrained('Storage_locations')->onDelete('cascade');
             $table->foreignId('laboratory_id')->constrained('laboratories')->onDelete('cascade');
             $table->integer('quantity');
             $table->string('unit');
             $table->date('date_acquired');
+            $table->integer('threshold')->nullable(); // Kolom threshold
             $table->timestamps();
         });
     }

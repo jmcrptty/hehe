@@ -9,42 +9,22 @@ class Item extends Model
 {
     use HasFactory;
 
+    protected $table = 'item_inventory_table_v4';
+
     protected $fillable = [
-        'item_code', 
-        'item_name', 
-        'loan_status_id', 
-        'item_type_id', 
-        'item_category_id', 
-        'item_condition_id', 
-        'storage_location_id', 
-        'laboratory_id', 
-        'quantity', 
-        'unit', 
-        'date_acquired'
+        'item_code', 'item_name', 'condition_name', 'loan_status', 'type_name',
+        'category_name', 'storage_location_id', 'laboratory_id', 'quantity', 
+        'unit', 'date_acquired', 'threshold'
     ];
 
-    // Relasi dengan tabel lain jika diperlukan
-    public function loanStatus() {
-        return $this->belongsTo(LoanStatus::class);
-    }
-
-    public function itemType() {
-        return $this->belongsTo(ItemType::class);
-    }
-
-    public function itemCategory() {
-        return $this->belongsTo(ItemCategory::class);
-    }
-
-    public function itemCondition() {
-        return $this->belongsTo(ItemCondition::class);
-    }
-
-    public function storageLocation() {
+    // Relasi ke tabel StorageLocation dan Laboratory
+    public function storageLocation()
+    {
         return $this->belongsTo(StorageLocation::class);
     }
 
-    public function laboratory() {
+    public function laboratory()
+    {
         return $this->belongsTo(Laboratory::class);
     }
 }
