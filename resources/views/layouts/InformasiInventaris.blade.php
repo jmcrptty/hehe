@@ -3,8 +3,9 @@
 @section('content')
 <div class="container mt-4">
     <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Daftar Inventaris</h2>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Daftar Inventaris</h3>
+            <a href="#" class="btn btn-primary">Peminjaman</a> <!-- Tombol biru di sebelah kanan -->
         </div>
         <div class="card-body">
             <table class="table table-bordered table-striped">

@@ -37,16 +37,18 @@ class ItemController extends Controller
             'threshold' => 'required_if:category_name,Barang Habis Pakai|nullable|integer|min:1', // Validasi threshold
         ]);
 
-        // Simpan data barang
+    
         Item::create($request->all());
 
         return redirect()->route('items.index')->with('success', 'Barang berhasil ditambahkan.');
     }
 
-    // Menampilkan daftar barang
+
     public function index()
     {
         $items = Item::all();
-        return view('layouts.inputinventaris', compact('items'));
+        $storageLocations = StorageLocation::all(); // Fetch storage locations
+        $laboratories = Laboratory::all();
+        return view('layouts.inputinventaris', compact('items','storageLocations', 'laboratories'));
     }
 }

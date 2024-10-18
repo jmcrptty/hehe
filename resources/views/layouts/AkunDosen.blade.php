@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@extends('tilte','Tambah Akun Dosen')
 @section('content')
 <div class="container">
     <h2 class="mb-4">Tambah Akun Dosen</h2>

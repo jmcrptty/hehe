@@ -1,5 +1,6 @@
 <footer class="footer">
-    <div class="container">
+ 
+    <div class="container mt-3">
         <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
           <p class="col-md-4 mb-0 text-muted">&copy; 2024 Teknik Elektro</p>
       

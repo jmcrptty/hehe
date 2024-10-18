@@ -1,4 +1,4 @@
 @extends('layouts.app')
 @section('content')
-/buatkan saya in
+<h1>halobang</h1>
 @endsection

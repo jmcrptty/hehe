@@ -4,8 +4,14 @@
 <div class="container">
     <div class="card">
         <div class="card-header">
+
             <h5>Tambah Item</h5>
         </div>
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
         <div class="card-body">
             <form action="{{ route('items.store') }}" method="POST">
                 @csrf
@@ -90,7 +96,10 @@
                     <input type="number" class="form-control" id="threshold" name="threshold" min="1">
                 </div>
 
+            <div class="mt-3">
                 <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+                
             </form>
         </div>
     </div>
