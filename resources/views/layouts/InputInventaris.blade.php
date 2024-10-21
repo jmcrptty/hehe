@@ -4,29 +4,30 @@
 <div class="container">
     <div class="card">
         <div class="card-header">
-
             <h5>Tambah Item</h5>
         </div>
+
         @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
-    @endif
+        @endif
+
         <div class="card-body">
             <form action="{{ route('items.store') }}" method="POST">
                 @csrf
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="item_code">Kode Item</label>
                     <input type="text" class="form-control" id="item_code" name="item_code" required>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="item_name">Nama Item</label>
                     <input type="text" class="form-control" id="item_name" name="item_name" required>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="condition_name">Kondisi Item</label>
                     <select class="form-control" id="condition_name" name="condition_name" required>
                         <option value="Baik">Baik</option>
@@ -34,7 +35,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="loan_status">Status Peminjaman</label>
                     <select class="form-control" id="loan_status" name="loan_status" required>
                         <option value="Dipinjam">Dipinjam</option>
@@ -42,7 +43,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="type_name">Tipe Item</label>
                     <select class="form-control" id="type_name" name="type_name" required>
                         <option value="Barang Baru">Barang Baru</option>
@@ -50,7 +51,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="category_name">Kategori Item</label>
                     <select class="form-control" id="category_name" name="category_name" required onchange="toggleThreshold()">
                         <option value="Barang Jangka Panjang">Barang Jangka Panjang</option>
@@ -58,7 +59,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="storage_location_id">Lokasi Penyimpanan</label>
                     <select class="form-control" id="storage_location_id" name="storage_location_id" required>
                         @foreach($storageLocations as $storageLocation)
@@ -67,7 +68,7 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="laboratory_id">Laboratorium</label>
                     <select class="form-control" id="laboratory_id" name="laboratory_id" required>
                         @foreach($laboratories as $laboratory)
@@ -76,30 +77,30 @@
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="quantity">Jumlah</label>
                     <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="unit">Satuan</label>
                     <input type="text" class="form-control" id="unit" name="unit" required>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label for="date_acquired">Tanggal Diperoleh</label>
                     <input type="date" class="form-control" id="date_acquired" name="date_acquired" required>
                 </div>
 
-                <div class="form-group" id="threshold_field" style="display: none;">
+                <div class="form-group mb-3" id="threshold_field" style="display: none;">
                     <label for="threshold">Threshold</label>
                     <input type="number" class="form-control" id="threshold" name="threshold" min="1">
                 </div>
 
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Simpan</button>
-            </div>
-                
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+
             </form>
         </div>
     </div>

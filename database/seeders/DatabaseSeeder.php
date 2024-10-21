@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             'userid' => 'MHS001',
             'role' => 'Mahasiswa',
             'password' => Hash::make('password'),
+            'phone_number' => '081234567890', // Tambahkan nomor HP
         ]);
 
         User::create([
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
             'userid' => 'DSN001',
             'role' => 'Dosen',
             'password' => Hash::make('password'),
+            'phone_number' => '082345678901', // Tambahkan nomor HP
         ]);
 
         User::create([
@@ -36,6 +38,7 @@ class DatabaseSeeder extends Seeder
             'userid' => 'ADM001',
             'role' => 'Admin',
             'password' => Hash::make('password'),
+            'phone_number' => '083456789012', // Tambahkan nomor HP
         ]);
 
         User::create([
@@ -44,6 +47,7 @@ class DatabaseSeeder extends Seeder
             'userid' => 'SADM001',
             'role' => 'SuperAdmin',
             'password' => Hash::make('password'),
+            'phone_number' => '084567890123', // Tambahkan nomor HP
         ]);
     }
 }

@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('item_inventory_table_v4', function (Blueprint $table) {
-            $table->id(); // Tambahkan id jika belum ada
-            $table->string('item_code');
+            $table->id(); 
+            $table->string('item_code')->unique();
             $table->string('item_name');
             $table->enum('condition_name', ['Baik', 'Rusak'])->default('Baik'); 
             $table->enum('loan_status', ['Dipinjam', 'Tersedia'])->default('Tersedia');
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->string('unit');
             $table->date('date_acquired');
-            $table->integer('threshold')->nullable(); // Kolom threshold
+            $table->integer('threshold')->nullable(); 
             $table->timestamps();
         });
     }

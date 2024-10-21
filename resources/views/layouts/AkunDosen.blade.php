@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-@extends('tilte','Tambah Akun Dosen')
 @section('content')
 <div class="container">
     <h2 class="mb-4">Tambah Akun Dosen</h2>
@@ -36,6 +35,10 @@
                         <input type="text" class="form-control" id="userid" name="userid" required>
                     </div>
                     <div class="form-group mb-3">
+                        <label for="phone_number">Nomor Telepon</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                    </div>
+                    <div class="form-group mb-3">
                         <label for="Role">Role</label>
                         <select class="form-control" id="Role" name="Role" required>
                             <option value="Dosen" selected>Dosen</option>
@@ -60,6 +63,7 @@
                     <th>Nama</th>
                     <th>Email</th>
                     <th>NIP</th>
+                    <th>Nomor Telepon</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,6 +76,7 @@
                     <td>{{ $dosen->name }}</td>
                     <td>{{ $dosen->email }}</td>
                     <td>{{ $dosen->userid }}</td>
+                    <td>{{ $dosen->phone_number }}</td> <!-- Tampilkan nomor telepon -->
                 </tr>
                 @endforeach
             </tbody>

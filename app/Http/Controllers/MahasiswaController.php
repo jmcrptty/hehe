@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use League\Csv\Reader;
-use League\Csv\Statement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +14,7 @@ class MahasiswaController extends Controller
 {
     public function index()
     {
-        $mahasiswaUsers = User::where('Role', 'Mahasiswa')->get();
+        $mahasiswaUsers = User::where('Role', 'Mahasiswa')->get(); // Tetap menggunakan 'Role' dengan huruf R besar
         return view('layouts.AkunMahasiswa', compact('mahasiswaUsers'));
     }
 
@@ -26,6 +25,7 @@ class MahasiswaController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'userid' => 'required|string|max:255|unique:users,userid',
             'password' => 'required|string|min:8',
+            'phone_number' => 'nullable|string|max:15', // Tambahkan validasi untuk nomor HP
         ]);
 
         if ($validator->fails()) {
@@ -36,8 +36,9 @@ class MahasiswaController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'userid' => $request->userid,
-            'Role' => 'Mahasiswa',
+            'Role' => 'Mahasiswa', // Tetap menggunakan 'Role' dengan huruf R besar
             'password' => Hash::make($request->password),
+            'phone_number' => $request->phone_number, // Tambahkan nomor HP
         ]);
 
         return redirect()->route('AkunMahasiswa')->with('success', 'Akun mahasiswa berhasil ditambahkan');
@@ -65,6 +66,7 @@ class MahasiswaController extends Controller
                     'email' => 'required|string|email|max:255|unique:users',
                     'userid' => 'required|string|max:255|unique:users,userid',
                     'password' => 'required|string|min:8',
+                    'phone_number' => 'nullable|string|max:15', // Tambahkan validasi untuk nomor HP
                 ]);
 
                 if ($validator->fails()) {
@@ -76,8 +78,9 @@ class MahasiswaController extends Controller
                     'name' => $record['name'],
                     'email' => $record['email'],
                     'userid' => $record['userid'],
-                    'Role' => 'Mahasiswa',
+                    'Role' => 'Mahasiswa', // Tetap menggunakan 'Role' dengan huruf R besar
                     'password' => Hash::make($record['password']),
+                    'phone_number' => $record['phone_number'] ?? null, // Tambahkan nomor HP jika ada
                 ]);
 
                 $importCount++;

@@ -61,6 +61,10 @@
                         <input type="text" class="form-control" id="userid" name="userid" required>
                     </div>
                     <div class="form-group mb-3">
+                        <label for="phone_number">Nomor HP</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" maxlength="15" placeholder="Opsional">
+                    </div>
+                    <div class="form-group mb-3">
                         <label for="password">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
@@ -71,27 +75,35 @@
     </div>
 
     <h3 class="mb-3">Daftar Akun Mahasiswa</h3>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>Email</th>
-                    <th>NPM</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($mahasiswaUsers as $mahasiswa)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $mahasiswa->name }}</td>
-                    <td>{{ $mahasiswa->email }}</td>
-                    <td>{{ $mahasiswa->userid }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">List Mahasiswa</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>NPM</th>
+                            <th>Nomor HP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($mahasiswaUsers as $mahasiswa)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $mahasiswa->name }}</td>
+                            <td>{{ $mahasiswa->email }}</td>
+                            <td>{{ $mahasiswa->userid }}</td>
+                            <td>{{ $mahasiswa->phone_number }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 @endsection

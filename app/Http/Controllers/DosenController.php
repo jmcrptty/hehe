@@ -20,6 +20,7 @@ class DosenController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'userid' => 'required|string|max:255|unique:users,userid',
+            'phone_number' => 'required|string|max:15', // Tambahkan validasi untuk nomor telepon
             'Role' => 'required|in:Dosen',
             'password' => 'required|string|min:8',
         ]);
@@ -28,6 +29,7 @@ class DosenController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'userid' => $request->userid,
+            'phone_number' => $request->phone_number, // Simpan nomor telepon ke database
             'Role' => $request->Role,
             'password' => Hash::make($request->password),
         ]);
