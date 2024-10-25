@@ -1,90 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Login - SB Admin</title>
-        <link href="css/styles.css" rel="stylesheet" />
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <style>
-            body {
-                background: linear-gradient(45deg, #1e3a8a, #f97316);
-                min-height: 100vh;
-            }
-            .card {
-                border-radius: 1rem;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="layoutAuthentication">
-            <div id="layoutAuthentication_content">
-                <main>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-5">
-                                <div class="card shadow-lg border-0 rounded-lg mt-5">
-                                    <div class="card-header">
-                                        <h3 class="text-center font-weight-light my-4">Login</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <!-- Session Status -->
-                                        @if (session('status'))
-                                            <div class="alert alert-success mb-4" role="alert">
-                                                {{ session('status') }}
-                                            </div>
-                                        @endif
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login - Simlab Elektro</title>
 
-                                        <form method="POST" action="{{ route('login') }}">
-                                            @csrf
+    <!-- Custom fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
-                                            <!-- Email Address -->
-                                            <div class="form-floating mb-3">
-                                                <input id="email" class="form-control" type="email" name="email" :value="old('email')" required autofocus placeholder="name@example.com" autocomplete="username" />
-                                                <label for="email">Email address</label>
-                                                @error('email')
-                                                    <div class="text-danger mt-2">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-                                            <!-- Password -->
-                                            <div class="form-floating mb-3">
-                                                <input id="password" class="form-control" type="password" name="password" required placeholder="Password" autocomplete="current-password" />
-                                                <label for="password">Password</label>
-                                                @error('password')
-                                                    <div class="text-danger mt-2">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+    <style>
+        body {
+            background: linear-gradient(to right, #4e73df, #224abe);
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-box {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            margin: 0 auto;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo img {
+            max-width: 120px;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .input-group-text {
+            background-color: #4e73df;
+            border: none;
+            color: white;
+        }
+        .form-control {
+            border-radius: 5px;
+            padding: 0.75rem 1rem;
+        }
+        .btn-primary {
+            background-color: #4e73df;
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary:hover {
+            background-color: #224abe;
+        }
+        .alert {
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+        }
+        .copyright {
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
 
-                                            <!-- Remember Me -->
-                                            <div class="form-check mb-3">
-                                                <input class="form-check-input" id="remember_me" type="checkbox" name="remember" />
-                                                <label class="form-check-label" for="remember_me">Remember me</label>
-                                            </div>
-
-                                            <!-- Actions -->
-                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                                @if (Route::has('password.request'))
-                                                    <a class="small" href="{{ route('password.request') }}">Forgot Password?</a>
-                                                @endif
-                                                <button type="submit" class="btn btn-primary">Login</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="card-footer text-center py-3">
-                                        <div class="small"><a href="{{ route('register') }}">Need an account? Sign up!</a></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </main>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <div class="logo">
+                <h4 class="text-dark">Sistem Informasi Manajemen Inventaris Laboratorium</h4>
+                <p class="text-muted">Teknik Elektro Universitas Musamus Merauke</p>
             </div>
+
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                        </div>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                               name="email" value="{{ old('email') }}" placeholder="Email" required autofocus>
+                    </div>
+                    @error('email')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                        </div>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                               name="password" placeholder="Password" required>
+                    </div>
+                    @error('password')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </button>
+            </form>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="js/scripts.js"></script>
-    </body>
+
+        <div class="copyright">
+            <small>&copy; {{ date('Y') }} Simlab Elektro - Universitas Musamus Merauke</small>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

@@ -46,9 +46,48 @@ class ItemController extends Controller
 
     public function index()
     {
-        $items = Item::all();
-        $storageLocations = StorageLocation::all(); // Fetch storage locations
-        $laboratories = Laboratory::all();
-        return view('layouts.inputinventaris', compact('items','storageLocations', 'laboratories'));
+        $items = Item::with(['storageLocation', 'laboratory'])->get();
+        return view('layouts.InformasiInventaris', compact('items'));
+    }
+
+    public function getDetail($id)
+    {
+        try {
+            $item = Item::with(['storageLocation', 'laboratory'])->findOrFail($id);
+            
+            // Format data untuk ditampilkan
+            $formattedData = [
+                'success' => true,
+                'data' => [
+                    'item_name' => $item->item_name,
+                    'item_code' => $item->item_code,
+                    'category' => [
+                        'name' => $item->category_name,
+                        'type' => $item->type_name,
+                        'status' => [
+                            'condition' => $item->condition_name,
+                            'loan' => $item->loan_status
+                        ]
+                    ],
+                    'quantity' => [
+                        'current' => $item->quantity,
+                        'unit' => $item->unit,
+                        'threshold' => $item->threshold
+                    ],
+                    'location' => [
+                        'storage' => $item->storageLocation->name,
+                        'laboratory' => $item->laboratory->name
+                    ],
+                    'date_acquired' => date('d F Y', strtotime($item->date_acquired))
+                ]
+            ];
+
+            return response()->json($formattedData);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
     }
 }

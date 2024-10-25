@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\InventoryDetailController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -40,9 +41,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('PeminjamanInventaris');
 });
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/InformasiInventaris', function () {
-        return view('layouts.InformasiInventaris');
-    })->name('InformasiInventaris');
+    Route::get('/InformasiInventaris', [ItemController::class, 'index'])->name('InformasiInventaris');
+    Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'show'])->name('inventory.detail');
 });
 
 
@@ -59,5 +59,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 Route::get('/InputInventaris', [ItemController::class, 'create'])->name('InputInventaris');
 Route::resource('inventaris', ItemController::class);
+
+// Tambahkan di dalam group middleware auth
+Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'show'])->name('inventory.detail');
 
 require __DIR__.'/auth.php';
