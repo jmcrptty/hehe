@@ -42,7 +42,7 @@
             margin-bottom: 1.5rem;
         }
         .input-group-text {
-            background-color: #4e73df;
+            background-color: #d92e04;
             border: none;
             color: white;
         }
@@ -51,14 +51,14 @@
             padding: 0.75rem 1rem;
         }
         .btn-primary {
-            background-color: #4e73df;
+            background-color: #d92e04;
             border: none;
             padding: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.5px;
         }
         .btn-primary:hover {
-            background-color: #224abe;
+            background-color: #fa3200;
         }
         .alert {
             border-radius: 5px;
@@ -76,6 +76,7 @@
     <div class="container">
         <div class="login-box">
             <div class="logo">
+                <img src="img/logo.ico" alt="Logo" class="img-fluid">
                 <h4 class="text-dark">Sistem Informasi Manajemen Inventaris Laboratorium</h4>
                 <p class="text-muted">Teknik Elektro Universitas Musamus Merauke</p>
             </div>

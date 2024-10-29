@@ -15,10 +15,10 @@
         <style>
             /* Warna baru yang lebih modern dan elegan */
             :root {
-                --primary-color: #2c3e50;
-                --secondary-color: #34495e;
-                --accent-color: #3498db;
-                --hover-color: #2980b9;
+                --primary-color: #147be1;
+                --secondary-color: #000000;
+                --accent-color: #ff0000;
+                --hover-color: #df1414;
             }
 
             .sb-sidenav {
@@ -66,12 +66,12 @@
             
             .sb-sidenav-dark .sb-sidenav-footer {
                 background-color: var(--secondary-color);
-                border-top: 1px solid rgba(255,255,255,0.1);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
 
             /* Tambahan styling untuk membuat tampilan lebih modern */
             .sb-sidenav-menu-heading {
-                color: rgba(255,255,255,0.7) !important;
+                color: rgba(255, 255, 255, 0.7) !important;
                 font-size: 0.8rem;
                 letter-spacing: 1px;
                 text-transform: uppercase;

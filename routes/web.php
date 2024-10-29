@@ -42,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/InformasiInventaris', [ItemController::class, 'index'])->name('InformasiInventaris');
-    Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'show'])->name('inventory.detail');
+    Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'getDetail'])->name('inventory.detail');
 });
 
 
@@ -61,6 +61,6 @@ Route::get('/InputInventaris', [ItemController::class, 'create'])->name('InputIn
 Route::resource('inventaris', ItemController::class);
 
 // Tambahkan di dalam group middleware auth
-Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'show'])->name('inventory.detail');
+Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'getDetail'])->name('inventory.detail');
 
 require __DIR__.'/auth.php';

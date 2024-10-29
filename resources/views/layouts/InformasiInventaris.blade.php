@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', 'Informasi Inventaris')
 @section('content')
 <div class="container mt-4">
     <div class="card shadow-sm">
@@ -57,7 +58,10 @@
                             </td>
                             <td>{{ $item->quantity }} {{ $item->unit }}</td>
                             <td>
-                                <button type="button" class="btn btn-primary btn-sm show-detail" data-id="{{ $item->id }}">
+                                <button type="button" 
+                                        class="btn btn-primary btn-sm show-detail" 
+                                        data-id="{{ $item->id }}"
+                                        onclick="showDetail({{ $item->id }})">
                                     <i class="fas fa-info-circle"></i> Detail
                                 </button>
                             </td>
@@ -123,21 +127,41 @@
 
 @push('scripts')
 <script>
+function showDetail(itemId) {
+    console.log('Clicking detail for item ID:', itemId);
+
+    // Tampilkan modal terlebih dahulu
+    $('#detailModal').modal('show');
+
+    // Ambil data dari elemen tabel yang sudah ada
+    const row = $(`button[data-id="${itemId}"]`).closest('tr');
+    
+    // Update nilai di modal dari data yang sudah ada di tabel
+    $('#item_name').text(row.find('td:eq(2)').text());  // Nama Barang
+    $('#item_code').text(row.find('td:eq(1)').text());  // Kode Barang
+    $('#condition_name').text(row.find('td:eq(3)').text().trim());  // Kondisi
+    $('#loan_status').text(row.find('td:eq(4)').text().trim());  // Status
+    
+    // Pisahkan quantity dan unit
+    const quantityUnit = row.find('td:eq(5)').text().split(' ');
+    $('#quantity').text(quantityUnit[0]);  // Quantity
+    $('#unit').text(quantityUnit[1]);      // Unit
+}
+
 $(document).ready(function() {
-    // Inisialisasi DataTable
+    // DataTable initialization
     var table = $('#dataTable').DataTable({
-        "dom": 'rt<"bottom"p>', // Hanya tampilkan table dan pagination
+        "dom": 'rt<"bottom"p>',
         "ordering": true,
         "language": {
             "emptyTable": "Tidak ada data yang tersedia"
         }
     });
     
-    // Custom search function
+    // Search functionality
     $('#searchInput').on('keyup', function() {
         table.search(this.value).draw();
         
-        // Tampilkan pesan jika tidak ada hasil
         if (table.page.info().recordsDisplay === 0) {
             if ($('#noResults').length === 0) {
                 $('#dataTable tbody').append(`
@@ -156,65 +180,11 @@ $(document).ready(function() {
         }
     });
 
-    // Fungsi untuk menampilkan detail
-    $(document).on('click', '.show-detail', function() {
-        var itemId = $(this).data('id');
-        $.ajax({
-            url: '/inventory/detail/' + itemId,
-            method: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    const data = response.data;
-                    $('#item_name').text(data.item_name);
-                    $('#item_code').text(data.item_code);
-                    $('#condition_name').text(data.category.status.condition);
-                    $('#loan_status').text(data.category.status.loan);
-                    $('#quantity').text(data.quantity.current);
-                    $('#unit').text(data.quantity.unit);
-                    
-                    $('#detailModal').modal('show');
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('Terjadi kesalahan saat mengambil data');
-                console.error(error);
-            }
-        });
-    });
-
-    // Handler untuk menutup modal
-    $('.btn-close, .btn-secondary').on('click', function() {
-        $('#detailModal').modal('hide');
-    });
-    
-    // Handler untuk membersihkan modal saat ditutup
+    // Modal reset handler
     $('#detailModal').on('hidden.bs.modal', function () {
-        $('#item_name').text('');
-        $('#item_code').text('');
-        $('#condition_name').text('');
-        $('#loan_status').text('');
-        $('#quantity').text('');
-        $('#unit').text('');
+        $('#item_name, #item_code, #condition_name, #loan_status, #quantity, #unit').text('-');
     });
 });
 </script>
-
-<style>
-/* Style yang sudah ada tetap sama */
-
-/* Tambahan style untuk menyembunyikan elemen default DataTables */
-.dataTables_filter, .dataTables_info {
-    display: none;
-}
-
-/* Style untuk input pencarian */
-#searchInput {
-    border-radius: 4px 0 0 4px;
-}
-
-.input-group-text {
-    border-radius: 0 4px 4px 0;
-}
-</style>
 @endpush
 @endsection
