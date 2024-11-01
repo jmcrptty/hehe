@@ -1,41 +1,40 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
 @section('content')
-<h1 class="mt-4">Dashboard User</h1>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2">Dashboard User</h1>
+    </div>
 
-<div class="row justify-content-center">
     <!-- Welcome Message -->
-    <div class="col-md-12">
-        <div class="alert alert-primary" role="alert">
-            Selamat datang, <strong>{{ Auth::user()->name }}</strong>! Semoga harimu menyenangkan.
-        </div>
+    <div class="alert alert-primary" role="alert">
+        Selamat datang, <strong>{{ Auth::user()->name }}</strong>! Semoga harimu menyenangkan.
     </div>
 
     <!-- Informasi Akun -->
-    <div class="col-md-12 mt-3">
-        <div class="card shadow-sm border-0 rounded-lg" style="background: linear-gradient(135deg, #f3f4f6 0%, #e0e0e0 100%);">
-            <div class="card-header bg-primary text-white">Informasi Akun</div>
-            <div class="card-body">
-                <table class="table">
-                    <tr>
-                        <th>Nama:</th>
-                        <td>{{ Auth::user()->name }}</td>
-                    </tr>
-                    <tr>
-                        <th>Npm:</th>
-                        <td>{{ Auth::user()->userid }}</td>
-                    </tr>
-                    <tr>
-                        <th>Email:</th>
-                        <td>{{ Auth::user()->email }}</td>
-                    </tr>
-                    <tr>
-                        <th>Role:</th>
-                        <td>{{ ucfirst(Auth::user()->Role) }}</td>
-                    </tr>
-                </table>
-            </div>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Informasi Akun</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <tr>
+                    <th width="200">Nama:</th>
+                    <td>{{ Auth::user()->name }}</td>
+                </tr>
+                <tr>
+                    <th>Npm:</th>
+                    <td>{{ Auth::user()->userid }}</td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td>{{ Auth::user()->email }}</td>
+                </tr>
+                <tr>
+                    <th>Role:</th>
+                    <td>{{ ucfirst(Auth::user()->Role) }}</td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>

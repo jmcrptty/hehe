@@ -1,7 +1,9 @@
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
-    <img src="img/logo.ico" alt="Logo" class="img-fluid" style="width: auto; height: 40px;">
-    <a class="navbar-brand ps-3" href="#">SIMLAB ELEKTRO</a>
+    <a class="navbar-brand" href="{{ route('user.dashboard') }}">
+        <img src="img/logo.ico" alt="Logo" style="width: 40px; height: auto;">
+        SIMLAB ELEKTRO
+    </a>
     <!-- Sidebar Toggle-->
     <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
         <i class="fas fa-bars"></i>
