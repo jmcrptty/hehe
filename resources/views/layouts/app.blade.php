@@ -19,6 +19,10 @@
             --hover-color: #df1414;
         }
 
+        body {
+            overflow-x: hidden;
+        }
+
         .sb-sidenav {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
         }
@@ -75,30 +79,71 @@
             text-transform: uppercase;
         }
 
-        .sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        #layoutSidenav {
+            display: flex;
         }
 
-        /* Fix untuk content area */
+        #layoutSidenav_nav {
+            flex-basis: 225px;
+            flex-shrink: 0;
+            transition: transform .15s ease-in-out;
+            z-index: 1038;
+            transform: translateX(0);
+        }
+
         #layoutSidenav_content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+            flex-grow: 1;
+            min-height: calc(100vh - 56px);
             margin-left: 225px;
             padding: 20px;
         }
 
+        /* Responsive design */
         @media (max-width: 768px) {
+            #layoutSidenav_nav {
+                transform: translateX(-225px);
+            }
+
             #layoutSidenav_content {
                 margin-left: 0;
             }
+            
+            .sb-sidenav-toggled #layoutSidenav_nav {
+                transform: translateX(0);
+            }
+        }
+
+        .container-fluid {
+            padding: 1.5rem;
+        }
+
+        .card {
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
-<body>
+<body class="sb-nav-fixed">
     {{-- Navbar --}}
     @include('layouts._partials.navbar')
 
     <div id="layoutSidenav">
-        {{-- Sidebar --}}
-        @include('layouts._partials.sidebar')
+        {{-- Sidebar dengan logika yang lebih baik --}}
+        @if(Auth::check())
+            @php
+                $userRole = strtolower(Auth::user()->Role);
+            @endphp
+            
+            @if($userRole === 'admin' || $userRole === 'super_admin')
+                @include('admin.sidebar')
+            @elseif($userRole === 'dosen' || $userRole === 'mahasiswa')
+                @include('user.sidebar')
+            @endif
+        @endif
 
         <div id="layoutSidenav_content">
             <main>
@@ -122,5 +167,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/scripts.js') }}"></script>
+    @stack('scripts')
 </body>
 </html>

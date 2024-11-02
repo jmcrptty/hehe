@@ -15,7 +15,7 @@
         x-data="" 
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
     >
-        {{ __('Hapus A') }}
+        {{ __('Hapus Akun') }}
     </button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
@@ -24,11 +24,11 @@
             @method('delete')
 
             <h2 class="h5 font-medium text-gray-900 dark:text-gray-100">
-                {{ __('Are you sure you want to delete your account?') }}
+                {{ __('Apakah Anda yakin ingin menghapus akun Anda?') }}
             </h2>
 
             <p class="mt-2 text-muted">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+                {{ __('Setelah akun Anda dihapus, semua sumber daya dan data Anda akan dihapus secara permanen. Silakan masukkan kata sandi Anda untuk mengonfirmasi bahwa Anda ingin menghapus akun Anda secara permanen.') }}
             </p>
 
             <div class="form-group mt-4">

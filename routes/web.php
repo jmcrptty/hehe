@@ -23,7 +23,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    // Routes untuk dosen dan mahasiswa - mengarah ke views/user/dashboard.blade.php
+    // Routes untuk dosen dan mahasiswa
     Route::middleware(['role:dosen,mahasiswa'])->group(function () {
         Route::get('/user/dashboard', [DashboardController::class, 'userDashboard'])->name('user.dashboard');
         Route::get('/PeminjamanInventaris', function () {
@@ -33,14 +33,25 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'getDetail'])->name('inventory.detail');
     });
 
-    // Routes untuk admin dan super admin - mengarah ke views/admin/dashboard.blade.php
+    // Routes untuk admin dan super admin
     Route::middleware(['role:admin,super_admin'])->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
-        Route::get('/AkunMahasiswa', [MahasiswaController::class, 'index'])->name('AkunMahasiswa');
-        Route::post('/AkunMahasiswa', [MahasiswaController::class, 'store'])->name('AkunMahasiswa.store');
-        Route::post('/AkunMahasiswa/import', [MahasiswaController::class, 'importCSV'])->name('AkunMahasiswa.import');
-        Route::get('/AkunDosen', [DosenController::class, 'index'])->name('AkunDosen');
-        Route::post('/AkunDosen', [DosenController::class, 'store'])->name('AkunDosen.store');
+        
+        // Grup route untuk manajemen mahasiswa
+        Route::group(['prefix' => 'AkunMahasiswa', 'as' => 'AkunMahasiswa.'], function () {
+            Route::get('/', [MahasiswaController::class, 'index'])->name('index');
+            Route::post('/store', [MahasiswaController::class, 'store'])->name('store');
+            Route::post('/import', [MahasiswaController::class, 'importCSV'])->name('import');
+        });
+
+        // Grup route untuk manajemen dosen
+        Route::group(['prefix' => 'AkunDosen', 'as' => 'AkunDosen.'], function () {
+            Route::get('/', [DosenController::class, 'index'])->name('index');
+            Route::post('/store', [DosenController::class, 'store'])->name('store');
+            Route::post('/import', [DosenController::class, 'importCSV'])->name('import');
+        });
+        
+        // Route untuk inventaris
         Route::get('/InputInventaris', [ItemController::class, 'create'])->name('InputInventaris');
         Route::resource('inventaris', ItemController::class);
         Route::get('/KerusakanInventaris', function () {
