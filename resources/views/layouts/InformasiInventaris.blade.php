@@ -93,9 +93,11 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Detail Barang</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle mr-2"></i>Detail Barang
+                </h5>
+                <button type="button" class="btn btn-sm text-white" data-bs-dismiss="modal" aria-label="Close" style="font-size: 18px; background: none; border: none;">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body">
@@ -159,6 +161,21 @@
     .table td {
         vertical-align: middle;
     }
+    .modal-header .btn {
+        padding: 0;
+        margin: -1rem -1rem -1rem auto;
+        opacity: 0.75;
+        transition: opacity 0.15s;
+    }
+    
+    .modal-header .btn:hover {
+        opacity: 1;
+    }
+    
+    .modal-header .btn:focus {
+        box-shadow: none;
+        outline: none;
+    }
 </style>
 @endpush
 
@@ -221,6 +238,7 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
+                console.log('XHR:', xhr.responseText);
                 alert('Terjadi kesalahan saat mengambil detail barang');
             }
         });
