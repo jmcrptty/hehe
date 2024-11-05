@@ -4,8 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ItemController;
-use App\Http\Controllers\InventoryDetailController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryDetailController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 

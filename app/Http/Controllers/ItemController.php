@@ -6,6 +6,7 @@ use App\Models\Item;
 use App\Models\StorageLocation;
 use App\Models\Laboratory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
@@ -46,7 +47,8 @@ class ItemController extends Controller
 
     public function index()
     {
-        $items = Item::with(['storageLocation', 'laboratory'])->get();
+        // Ubah ke query builder untuk konsistensi
+        $items = DB::table('item_inventory_table_v4')->get();
         return view('layouts.InformasiInventaris', compact('items'));
     }
 
