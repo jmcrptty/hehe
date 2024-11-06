@@ -61,7 +61,7 @@
                         <i class="fas fa-clipboard-list me-2"></i>Status Peminjaman Terkini
                     </h5>
                 </div>
-                {{-- <div class="card-body">
+                <div class="card-body">
                     @if(session('status'))
                         <div class="alert alert-info alert-dismissible fade show" role="alert">
                             {{ session('status') }}
@@ -75,33 +75,42 @@
                                 <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded-3 border border-warning">
                                     <i class="fas fa-clock text-warning me-3 fs-4"></i>
                                     <div>
-                                        <h6 class="mb-1">Menunggu Persetujuan</h6>
-                                        <p class="mb-0 text-muted">Peminjaman Anda sedang dalam proses review oleh laboran</p>
+                                        <h6 class="mb-1">Menunggu Konfirmasi Laboran</h6>
+                                        <p class="mb-0 text-muted">Peminjaman Anda sedang ditinjau oleh laboran</p>
+                                        <small class="text-muted">Diajukan pada: {{ \Carbon\Carbon::parse($peminjaman->created_at)->format('d/m/Y H:i') }}</small>
                                     </div>
                                 </div>
                                 @break
+
                             @case('disetujui')
                                 <div class="d-flex align-items-center p-3 bg-success bg-opacity-10 rounded-3 border border-success">
                                     <i class="fas fa-check-circle text-success me-3 fs-4"></i>
                                     <div>
                                         <h6 class="mb-1">Peminjaman Disetujui</h6>
-                                        <p class="mb-0 text-muted">Silakan mengambil barang pada laboran</p>
+                                        <p class="mb-0 text-muted">Silakan ambil barang di laboratorium</p>
+                                        <small class="text-muted">Disetujui pada: {{ \Carbon\Carbon::parse($peminjaman->updated_at)->format('d/m/Y H:i') }}</small>
                                     </div>
                                 </div>
                                 @break
+
                             @case('ditolak')
                                 <div class="d-flex align-items-center p-3 bg-danger bg-opacity-10 rounded-3 border border-danger">
                                     <i class="fas fa-times-circle text-danger me-3 fs-4"></i>
                                     <div>
                                         <h6 class="mb-1">Peminjaman Ditolak</h6>
-                                        <p class="mb-0 text-muted">{{ $peminjaman->keterangan ?? 'Hubungi laboran untuk informasi lebih lanjut' }}</p>
+                                        <p class="mb-0 text-muted">{{ $peminjaman->keterangan ?: 'Tidak ada keterangan' }}</p>
+                                        <small class="text-muted">Ditolak pada: {{ \Carbon\Carbon::parse($peminjaman->updated_at)->format('d/m/Y H:i') }}</small>
                                     </div>
                                 </div>
                                 @break
+
                             @default
                                 <div class="text-center text-muted py-4">
-                                    <i class="fas fa-inbox fs-4 mb-3"></i>
-                                    <p>Tidak ada peminjaman aktif saat ini</p>
+                                    <i class="fas fa-inbox fs-4 mb-3 d-block"></i>
+                                    <p class="mb-0">Tidak ada peminjaman aktif saat ini</p>
+                                    <a href="{{ route('peminjaman.create') }}" class="btn btn-primary mt-3">
+                                        <i class="fas fa-plus me-2"></i>Buat Peminjaman Baru
+                                    </a>
                                 </div>
                         @endswitch
                     @else
@@ -113,7 +122,7 @@
                             </a>
                         </div>
                     @endif
-                </div> --}}
+                </div>
             </div>
         </div>
     </div>
