@@ -11,57 +11,27 @@ class InventoryDetailController extends Controller
     public function getDetail($id)
     {
         try {
-            Log::info('Accessing detail for item ID: ' . $id);
-            
-            $item = DB::table('items')
-                ->select([
-                    'id',
-                    'item_code',
-                    'item_name',
-                    'condition_name',
-                    'loan_status',
-                    'quantity',
-                    'unit'
-                ])
+            $item = DB::table('item_inventory_table_v4')
                 ->where('id', $id)
                 ->first();
 
-            Log::info('SQL Query: ' . DB::getQueryLog()[0]['query']);
-
             if (!$item) {
-                Log::warning('Item not found with ID: ' . $id);
                 return response()->json([
                     'success' => false,
                     'message' => 'Item tidak ditemukan'
-                ], 404);
+                ]);
             }
 
-            Log::info('Item data:', (array) $item);
-
-            $response = [
+            return response()->json([
                 'success' => true,
-                'data' => [
-                    'item_name' => $item->item_name,
-                    'item_code' => $item->item_code,
-                    'condition_name' => $item->condition_name,
-                    'loan_status' => $item->loan_status,
-                    'quantity' => $item->quantity,
-                    'unit' => $item->unit
-                ]
-            ];
-
-            Log::info('Sending response:', $response);
-            return response()->json($response);
+                'data' => $item
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Error in getDetail: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-                'trace' => config('app.debug') ? $e->getTraceAsString() : null
-            ], 500);
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
         }
     }
 }

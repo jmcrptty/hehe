@@ -18,10 +18,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'userid',
-        'Role', // Perbaiki huruf kapital pada 'Role'
         'password',
-        'phone_number', // Tambahkan kolom phone_number
+        'Role',
+        'userid',
+        'phone_number',
     ];
 
     /**
@@ -37,10 +37,42 @@ class User extends Authenticatable
     /**
      * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Check if user has specific role
+     */
+    public function hasRole($role)
+    {
+        return $this->Role === $role;
+    }
+
+    /**
+     * Check if user has any of the given roles
+     */
+    public function hasAnyRole($roles)
+    {
+        return in_array($this->Role, (array) $roles);
+    }
+
+    /**
+     * Check if user is admin or super admin
+     */
+    public function isAdmin()
+    {
+        return $this->hasAnyRole(['admin', 'super_admin']);
+    }
+
+    /**
+     * Check if user is dosen or mahasiswa
+     */
+    public function isUser()
+    {
+        return $this->hasAnyRole(['dosen', 'mahasiswa']);
+    }
 }

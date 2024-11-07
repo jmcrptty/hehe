@@ -21,7 +21,12 @@ return new class extends Migration
             $table->integer('quantity');
             $table->string('unit');
             $table->date('date_acquired');
-            $table->integer('threshold')->nullable(); 
+            $table->integer('threshold');
+            $table->bigInteger('price')->nullable();
+            $table->bigInteger('total_price')->nullable();
+            $table->text('usage')->nullable();
+            $table->text('notes')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
