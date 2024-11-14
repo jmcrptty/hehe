@@ -31,8 +31,8 @@
                 </a>
                 <div class="collapse" id="collapseInventaris" aria-labelledby="headingInventaris" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav">
-                        <a class="nav-link" href="{{ route('InputInventaris') }}">Input Inventaris</a>
-                        <a class="nav-link" href="/KetersediaanBarang">Ketersediaan Barang</a>
+                        <a class="nav-link" href="{{ route('items.create') }}">Input Inventaris</a>
+                        <a class="nav-link" href="{{ route('items.store') }}">Ketersediaan Barang</a>
                         <a class="nav-link" href="/KerusakanInventaris">Kerusakan Barang</a>
                     </nav>
                 </div>

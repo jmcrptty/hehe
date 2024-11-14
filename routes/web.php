@@ -33,7 +33,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/InformasiInventaris', [ItemController::class, 'index'])->name('InformasiInventaris');
         Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'getDetail'])->name('inventory.detail');
         Route::get('/peminjaman/create', [PeminjamanController::class, 'create'])->name('peminjaman.create');
-        Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
         Route::get('/peminjaman/history', [PeminjamanController::class, 'history'])->name('peminjaman.history');
     });
 
@@ -56,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
         });
         
         // Route untuk inventaris
-        Route::get('/InputInventaris', [ItemController::class, 'create'])->name('InputInventaris');
+        Route::resource('items', ItemController::class);
         Route::resource('inventaris', ItemController::class);
         Route::get('/KerusakanInventaris', function () {
             return view('layouts.KerusakanInventaris');
