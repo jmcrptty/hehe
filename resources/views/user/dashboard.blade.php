@@ -77,7 +77,7 @@
                                     <div>
                                         <h6 class="mb-1">Menunggu Konfirmasi Laboran</h6>
                                         <p class="mb-0 text-muted">Peminjaman Anda sedang ditinjau oleh laboran</p>
-                                        <small class="text-muted">Diajukan pada: {{ \Carbon\Carbon::parse($peminjaman->created_at)->format('d/m/Y H:i') }}</small>
+                                        <small class="text-muted">Diajukan pada: {{ $peminjaman->created_at ? $peminjaman->created_at->format('d/m/Y H:i') : '-' }}</small>
                                     </div>
                                 </div>
                                 @break
@@ -88,7 +88,7 @@
                                     <div>
                                         <h6 class="mb-1">Peminjaman Disetujui</h6>
                                         <p class="mb-0 text-muted">Silakan ambil barang di laboratorium</p>
-                                        <small class="text-muted">Disetujui pada: {{ \Carbon\Carbon::parse($peminjaman->updated_at)->format('d/m/Y H:i') }}</small>
+                                        <small class="text-muted">Disetujui pada: {{ $peminjaman->approved_at ? $peminjaman->approved_at->format('d/m/Y H:i') : '-' }}</small>
                                     </div>
                                 </div>
                                 @break
@@ -98,8 +98,8 @@
                                     <i class="fas fa-times-circle text-danger me-3 fs-4"></i>
                                     <div>
                                         <h6 class="mb-1">Peminjaman Ditolak</h6>
-                                        <p class="mb-0 text-muted">{{ $peminjaman->keterangan ?: 'Tidak ada keterangan' }}</p>
-                                        <small class="text-muted">Ditolak pada: {{ \Carbon\Carbon::parse($peminjaman->updated_at)->format('d/m/Y H:i') }}</small>
+                                        <p class="mb-0 text-muted">{{ $peminjaman->keterangan }}</p>
+                                        <small class="text-muted">Ditolak pada: {{ $peminjaman->rejected_at ? $peminjaman->rejected_at->format('d/m/Y H:i') : '-' }}</small>
                                     </div>
                                 </div>
                                 @break

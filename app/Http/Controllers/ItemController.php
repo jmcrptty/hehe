@@ -22,28 +22,47 @@ class ItemController extends Controller
     // Menyimpan barang baru ke dalam database
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
-            'item_code' => 'required|string|max:255',
-            'item_name' => 'required|string|max:255',
-            'condition_name' => 'required|in:Baik,Rusak',
-            'loan_status' => 'required|in:Dipinjam,Tersedia',
-            'type_name' => 'required|in:Barang Baru,Barang Lama',
-            'category_name' => 'required|in:Barang Jangka Panjang,Barang Habis Pakai',
-            'storage_location_id' => 'required|integer',
-            'laboratory_id' => 'required|integer',
-            'quantity' => 'required|integer|min:1',
-            'unit' => 'required|string|max:50',
+            'item_code' => 'required|unique:item_inventory_table_v4,item_code',
+            'item_name' => 'required',
+            'condition_name' => 'required',
+            'loan_status' => 'required',
+            'type_name' => 'required',
+            'category_name' => 'required',
+            'storage_location_id' => 'required|exists:storage_locations,id',
+            'laboratory_id' => 'required|exists:laboratories,id',
+            'quantity' => 'required|numeric|min:1',
+            'unit' => 'required',
             'date_acquired' => 'required|date',
-            'threshold' => 'required_if:category_name,Barang Habis Pakai|nullable|integer|min:1', // Validasi threshold
+            'threshold' => 'nullable|numeric|min:1'
         ]);
 
-    
-        Item::create($request->all());
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('items.index')->with('success', 'Barang berhasil ditambahkan.');
+            $item = new Item();
+            $item->item_code = $request->item_code;
+            $item->item_name = $request->item_name;
+            $item->condition_name = $request->condition_name;
+            $item->loan_status = $request->loan_status;
+            $item->type_name = $request->type_name;
+            $item->category_name = $request->category_name;
+            $item->storage_location_id = $request->storage_location_id;
+            $item->laboratory_id = $request->laboratory_id;
+            $item->quantity = $request->quantity;
+            $item->unit = $request->unit;
+            $item->date_acquired = $request->date_acquired;
+            $item->threshold = $request->threshold;
+            
+            $item->save();
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Item berhasil ditambahkan');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
-
 
     public function index()
     {

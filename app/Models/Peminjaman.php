@@ -8,12 +8,15 @@ class Peminjaman extends Model
 {
     protected $table = 'peminjaman';
     
-    protected $fillable = [
-        'user_id',
+    protected $guarded = [];
+    
+    protected $dates = [
         'tanggal_pinjam',
         'tanggal_kembali',
-        'status',
-        'keterangan'
+        'approved_at',
+        'rejected_at',
+        'created_at',
+        'updated_at'
     ];
 
     public function user()
@@ -24,7 +27,16 @@ class Peminjaman extends Model
     public function items()
     {
         return $this->belongsToMany(Item::class, 'peminjaman_items')
-                    ->withPivot('quantity', 'status')
-                    ->withTimestamps();
+                    ->withPivot('quantity');
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function rejecter()
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 } 

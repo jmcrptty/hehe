@@ -14,7 +14,7 @@
         @endif
 
         <div class="card-body">
-            <form action="{{ route('items.store') }}" method="POST">
+            <form action="{{ route('inventaris.store') }}" method="POST">
                 @csrf
 
                 <div class="form-group mb-3">

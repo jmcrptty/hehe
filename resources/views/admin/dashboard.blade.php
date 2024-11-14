@@ -75,7 +75,7 @@
                         @foreach($peminjaman ?? [] as $index => $p)
                         <tr>
                             <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</td>
+                            <td>{{ $p->tanggal_pinjam ? \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') : '-' }}</td>
                             <td>{{ $p->user->name }}</td>
                             <td class="text-center">
                                 <span class="badge bg-{{ $p->status == 'menunggu' ? 'warning' : ($p->status == 'disetujui' ? 'success' : 'danger') }}">
@@ -97,12 +97,12 @@
 
     <!-- Modal Detail -->
     @foreach($peminjaman ?? [] as $p)
-    <div class="modal" id="detailModal{{ $p->id }}" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal fade" id="detailModal{{ $p->id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $p->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Detail Peminjaman</h5>
-                    <button type="button" class="btn-close" onclick="closeModal({{ $p->id }})"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Informasi Peminjam -->
@@ -121,7 +121,7 @@
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-2">Tanggal Pinjam</div>
-                            <div class="col-md-10">: {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</div>
+                            <div class="col-md-10">: {{ $p->tanggal_pinjam ? \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') : '-' }}</div>
                         </div>
                         @php
                             $hasLongTermItem = $p->items->contains(function($item) {
@@ -131,7 +131,7 @@
                         @if($hasLongTermItem && $p->tanggal_kembali)
                         <div class="row mb-2">
                             <div class="col-md-2">Tanggal Kembali</div>
-                            <div class="col-md-10">: {{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') }}</div>
+                            <div class="col-md-10">: {{ $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') : '-' }}</div>
                         </div>
                         @endif
                     </div>
@@ -183,18 +183,20 @@
                     <!-- Tombol Aksi -->
                     @if($p->status == 'menunggu')
                     <div class="text-end mt-4">
-                        <form action="{{ route('admin.peminjaman.approve', $p->id) }}" method="POST" class="d-inline">
+                        <form action="{{ route('admin.peminjaman.approve', ['id' => $p->id]) }}" method="POST" class="d-inline">
                             @csrf
+                            @method('POST')
                             <button type="submit" class="btn btn-success">Setujui</button>
                         </form>
-                        <button type="button" class="btn btn-danger" onclick="showRejectModal({{ $p->id }})">
+                        
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $p->id }}">
                             Tolak
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal({{ $p->id }})">Tutup</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                     </div>
                     @else
                     <div class="text-end mt-4">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal({{ $p->id }})">Tutup</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                     </div>
                     @endif
                 </div>
@@ -203,14 +205,15 @@
     </div>
 
     <!-- Modal Tolak -->
-    <div class="modal" id="rejectModal{{ $p->id }}" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="rejectModal{{ $p->id }}" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <form action="{{ route('admin.peminjaman.reject', $p->id) }}" method="POST">
+                <form action="{{ route('admin.peminjaman.reject', ['id' => $p->id]) }}" method="POST">
                     @csrf
+                    @method('POST')
                     <div class="modal-header">
                         <h5 class="modal-title">Tolak Peminjaman</h5>
-                        <button type="button" class="btn-close" onclick="closeRejectModal({{ $p->id }})"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
@@ -219,7 +222,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeRejectModal({{ $p->id }})">Batal</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-danger">Konfirmasi</button>
                     </div>
                 </form>
@@ -244,19 +247,21 @@ $(document).ready(function() {
 });
 
 function showDetail(id) {
-    $('#detailModal' + id).show();
+    $('#detailModal' + id).modal('show');
 }
 
 function closeModal(id) {
-    $('#detailModal' + id).hide();
+    $('#detailModal' + id).modal('hide');
 }
 
 function showRejectModal(id) {
-    $('#rejectModal' + id).show();
+    $('#detailModal' + id).modal('hide');
+    $('#rejectModal' + id).modal('show');
 }
 
 function closeRejectModal(id) {
-    $('#rejectModal' + id).hide();
+    $('#rejectModal' + id).modal('hide');
+    $('#detailModal' + id).modal('show');
 }
 
 // Check if welcome message was previously dismissed

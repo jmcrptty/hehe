@@ -7,18 +7,45 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class PeminjamanController extends Controller
 {
     public function approve($id)
     {
-        $peminjaman = Peminjaman::findOrFail($id);
-        $peminjaman->status = 'disetujui';
-        $peminjaman->approved_by = Auth::id();
-        $peminjaman->approved_at = now();
-        $peminjaman->save();
+        DB::beginTransaction();
+        try {
+            $peminjaman = Peminjaman::findOrFail($id);
+            
+            // Debug log
+            Log::info('Approving peminjaman', [
+                'peminjaman_id' => $id,
+                'current_status' => $peminjaman->status,
+                'user_id' => Auth::id()
+            ]);
 
-        return redirect()->back()->with('success', 'Peminjaman berhasil disetujui');
+            $peminjaman->status = 'disetujui';
+            $peminjaman->approved_by = Auth::id();
+            $peminjaman->approved_at = Carbon::now();
+            $peminjaman->save();
+
+            // Debug log setelah update
+            Log::info('Peminjaman approved', [
+                'peminjaman_id' => $id,
+                'new_status' => $peminjaman->status
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Peminjaman berhasil disetujui');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error approving peminjaman', [
+                'peminjaman_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyetujui peminjaman');
+        }
     }
 
     public function confirmPickup($id)
@@ -94,18 +121,32 @@ class PeminjamanController extends Controller
 
     public function reject(Request $request, $id)
     {
-        $request->validate([
-            'keterangan' => 'required|string|max:255'
-        ]);
+        DB::beginTransaction();
+        try {
+            $request->validate([
+                'keterangan' => 'required|string|max:255'
+            ]);
 
-        $peminjaman = Peminjaman::findOrFail($id);
-        $peminjaman->status = 'ditolak';
-        $peminjaman->keterangan = $request->keterangan;
-        $peminjaman->rejected_by = Auth::id();
-        $peminjaman->rejected_at = now();
-        $peminjaman->save();
+            $peminjaman = Peminjaman::findOrFail($id);
+            
+            // Pastikan status masih menunggu
+            if ($peminjaman->status !== 'menunggu') {
+                return redirect()->back()->with('error', 'Status peminjaman sudah berubah');
+            }
 
-        return redirect()->back()->with('success', 'Peminjaman berhasil ditolak');
+            $peminjaman->status = 'ditolak';
+            $peminjaman->keterangan = $request->keterangan;
+            $peminjaman->rejected_by = Auth::id();
+            $peminjaman->rejected_at = Carbon::now();
+            $peminjaman->save();
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Peminjaman berhasil ditolak');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error rejecting peminjaman: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menolak peminjaman');
+        }
     }
 
     public function create()
@@ -128,8 +169,10 @@ class PeminjamanController extends Controller
 
         $peminjaman = new Peminjaman();
         $peminjaman->user_id = Auth::id();
-        $peminjaman->tanggal_pinjam = $request->tanggal_pinjam;
-        $peminjaman->tanggal_kembali = $request->tanggal_kembali;
+        $peminjaman->tanggal_pinjam = Carbon::now();
+        if ($request->tanggal_kembali) {
+            $peminjaman->tanggal_kembali = Carbon::parse($request->tanggal_kembali);
+        }
         $peminjaman->status = 'menunggu';
         $peminjaman->save();
 

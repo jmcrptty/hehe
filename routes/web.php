@@ -57,7 +57,8 @@ Route::middleware(['auth'])->group(function () {
         
         // Route untuk inventaris
         Route::get('/InputInventaris', [ItemController::class, 'create'])->name('InputInventaris');
-        Route::resource('inventaris', ItemController::class);
+        Route::post('/inventaris/store', [ItemController::class, 'store'])->name('inventaris.store');
+        Route::resource('items', ItemController::class);
         Route::get('/KerusakanInventaris', function () {
             return view('layouts.KerusakanInventaris');
         })->name('KerusakanInventaris');
@@ -76,8 +77,10 @@ Route::middleware(['auth'])->group(function () {
 
 // Routes untuk admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::post('/admin/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])->name('admin.peminjaman.approve');
-    Route::post('/admin/peminjaman/{id}/reject', [PeminjamanController::class, 'reject'])->name('admin.peminjaman.reject');
+    Route::post('/admin/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])
+         ->name('admin.peminjaman.approve');
+    Route::post('/admin/peminjaman/{id}/reject', [PeminjamanController::class, 'reject'])
+         ->name('admin.peminjaman.reject');
 });
 
 require __DIR__.'/auth.php';
