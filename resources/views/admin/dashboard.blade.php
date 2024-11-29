@@ -15,7 +15,6 @@
             </div>
         </div>
     </div>
-
     <!-- Main Content -->
     <!-- Informasi Akun Card -->
     <div class="card shadow-sm border-0 mb-4">
@@ -73,13 +72,23 @@
                     </thead>
                     <tbody>
                         @foreach($peminjaman ?? [] as $index => $p)
-                        <tr>
+                        <tr class="{{ 
+                            $p->user->peminjaman()
+                                ->whereIn('status', ['menunggu_pengembalian', 'terlambat'])
+                                ->exists() ? 'table-warning' : '' 
+                        }}">
                             <td class="text-center">{{ $index + 1 }}</td>
                             <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</td>
                             <td>{{ $p->user->name }}</td>
                             <td class="text-center">
-                                <span class="badge bg-{{ $p->status == 'menunggu' ? 'warning' : ($p->status == 'disetujui' ? 'success' : 'danger') }}">
-                                    {{ ucfirst($p->status) }}
+                                <span class="badge bg-{{ 
+                                    $p->status == 'menunggu' ? 'warning' : 
+                                    ($p->status == 'disetujui' ? 'success' : 
+                                    ($p->status == 'menunggu_pengembalian' ? 'info' : 
+                                    ($p->status == 'terlambat' ? 'danger' : 
+                                    ($p->status == 'selesai' ? 'success' : 'secondary')))) 
+                                }}">
+                                    {{ ucfirst(str_replace('_', ' ', $p->status)) }}
                                 </span>
                             </td>
                             <td class="text-center">
@@ -95,14 +104,77 @@
         </div>
     </div>
 
+    <!-- Setelah List Peminjaman, tambahkan section History -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-history me-2"></i>Riwayat Peminjaman
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Peminjam</th>
+                            <th>Barang</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($riwayatPeminjaman ?? [] as $index => $p)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>
+                                Pinjam: {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}<br>
+                                @if($p->tanggal_kembali)
+                                Kembali: {{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') }}
+                                @endif
+                            </td>
+                            <td>{{ $p->user->name }}</td>
+                            <td>
+                                @foreach($p->items as $item)
+                                    - {{ $item->item_name }} ({{ $item->pivot->quantity }})<br>
+                                @endforeach
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-{{ 
+                                    $p->status == 'selesai' ? 'success' : 
+                                    ($p->status == 'ditolak' ? 'danger' : 'secondary') 
+                                }}">
+                                    {{ ucfirst(str_replace('_', ' ', $p->status)) }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($p->status == 'ditolak')
+                                    <small class="text-danger">{{ $p->keterangan }}</small>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center">Belum ada riwayat peminjaman</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Detail -->
     @foreach($peminjaman ?? [] as $p)
-    <div class="modal" id="detailModal{{ $p->id }}" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal fade" id="detailModal{{ $p->id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $p->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detail Peminjaman</h5>
-                    <button type="button" class="btn-close" onclick="closeModal({{ $p->id }})"></button>
+                    <h5 class="modal-title" id="detailModalLabel{{ $p->id }}">Detail Peminjaman</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Informasi Peminjam -->
@@ -179,48 +251,94 @@
                             </table>
                         </div>
                     </div>
-
-                    <!-- Tombol Aksi -->
+                </div>
+                <div class="modal-footer">
                     @if($p->status == 'menunggu')
-                    <div class="text-end mt-4">
-                        <form action="{{ route('admin.peminjaman.approve', $p->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-success">Setujui</button>
-                        </form>
+                        <button type="button" class="btn btn-success" onclick="showApproveModal({{ $p->id }})">
+                            Setujui
+                        </button>
                         <button type="button" class="btn btn-danger" onclick="showRejectModal({{ $p->id }})">
                             Tolak
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal({{ $p->id }})">Tutup</button>
-                    </div>
-                    @else
-                    <div class="text-end mt-4">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal({{ $p->id }})">Tutup</button>
-                    </div>
+                    @elseif(in_array($p->status, ['menunggu_pengembalian', 'terlambat']))
+                        <form action="{{ route('admin.peminjaman.return', $p->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">Selesaikan Peminjaman</button>
+                        </form>
                     @endif
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modal Tolak -->
-    <div class="modal" id="rejectModal{{ $p->id }}" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="rejectModal{{ $p->id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ $p->id }}" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel{{ $p->id }}">Tolak Peminjaman</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <form action="{{ route('admin.peminjaman.reject', $p->id) }}" method="POST">
                     @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">Tolak Peminjaman</h5>
-                        <button type="button" class="btn-close" onclick="closeRejectModal({{ $p->id }})"></button>
-                    </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Alasan Penolakan</label>
-                            <textarea class="form-control" name="keterangan" rows="3" required></textarea>
+                            <label for="keterangan{{ $p->id }}" class="form-label">Keterangan Penolakan <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="keterangan{{ $p->id }}" name="keterangan" rows="3" required></textarea>
+                            <small class="text-muted">Berikan alasan penolakan peminjaman</small>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeRejectModal({{ $p->id }})">Batal</button>
-                        <button type="submit" class="btn btn-danger">Konfirmasi</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Tolak Peminjaman</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Setujui -->
+    <div class="modal fade" id="approveModal{{ $p->id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ $p->id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveModalLabel{{ $p->id }}">Konfirmasi Persetujuan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('admin.peminjaman.approve', $p->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin menyetujui peminjaman ini?</p>
+                        <div class="mt-3">
+                            <h6>Detail Peminjaman:</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td>Peminjam</td>
+                                    <td>: {{ $p->user->name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tanggal Pinjam</td>
+                                    <td>: {{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</td>
+                                </tr>
+                                @if($p->tanggal_kembali)
+                                <tr>
+                                    <td>Tanggal Kembali</td>
+                                    <td>: {{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') }}</td>
+                                </tr>
+                                @endif
+                            </table>
+                            <h6>Barang yang dipinjam:</h6>
+                            <ul class="list-unstyled">
+                                @foreach($p->items as $item)
+                                    <li>- {{ $item->item_name }} ({{ $item->pivot->quantity }})</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Ya, Setujui</button>
                     </div>
                 </form>
             </div>
@@ -233,6 +351,7 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // DataTable untuk peminjaman aktif
     $('#peminjamanTable').DataTable({
         "pageLength": 10,
         "ordering": true,
@@ -241,23 +360,43 @@ $(document).ready(function() {
             "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
         }
     });
+
+    // DataTable untuk history
+    $('#historyTable').DataTable({
+        "pageLength": 10,
+        "ordering": true,
+        "order": [[1, 'desc']],
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
+        }
+    });
+
+    // Fungsi untuk menampilkan modal detail
+    window.showDetail = function(id) {
+        $('#detailModal' + id).modal('show');
+    }
+
+    // Fungsi untuk menutup modal detail
+    window.closeModal = function(id) {
+        $('#detailModal' + id).modal('hide');
+    }
+
+    // Fungsi untuk menampilkan modal approve
+    window.showApproveModal = function(id) {
+        $('#detailModal' + id).modal('hide'); // Tutup modal detail
+        setTimeout(function() {
+            $('#approveModal' + id).modal('show');
+        }, 500);
+    }
+
+    // Fungsi untuk menampilkan modal reject
+    window.showRejectModal = function(id) {
+        $('#detailModal' + id).modal('hide'); // Tutup modal detail
+        setTimeout(function() {
+            $('#rejectModal' + id).modal('show');
+        }, 500);
+    }
 });
-
-function showDetail(id) {
-    $('#detailModal' + id).show();
-}
-
-function closeModal(id) {
-    $('#detailModal' + id).hide();
-}
-
-function showRejectModal(id) {
-    $('#rejectModal' + id).show();
-}
-
-function closeRejectModal(id) {
-    $('#rejectModal' + id).hide();
-}
 
 // Check if welcome message was previously dismissed
 document.addEventListener('DOMContentLoaded', function() {
@@ -277,4 +416,172 @@ function clearWelcomeState() {
     localStorage.removeItem('welcomeDismissed');
 }
 </script>
+@endpush
+
+@push('styles')
+<style>
+/* Card Styling */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    padding: 1.25rem 1.5rem;
+}
+
+/* Table Styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-top: none;
+    border-bottom: 2px solid #e9ecef;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td, .table th {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* Badge Styling */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* Button Styling */
+.btn {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+    transition: all 0.2s;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Modal Styling */
+.modal-content {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(0,0,0,.05);
+    padding: 1.25rem 1.5rem;
+}
+
+/* Welcome Message Styling */
+.welcome-message .card {
+    border-radius: 0.5rem;
+    background: linear-gradient(45deg, #4e73df 0%, #224abe 100%);
+}
+
+/* Table Warning State */
+.table-warning {
+    background-color: #fff8e1 !important;
+}
+
+/* DataTables Styling */
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #e9ecef;
+    border-radius: 0.35rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #4e73df !important;
+    border-color: #4e73df !important;
+    color: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #eaecf4 !important;
+    border-color: #eaecf4 !important;
+}
+
+/* List Styling */
+.list-unstyled li {
+    padding: 0.25rem 0;
+}
+
+/* Responsive Table */
+.table-responsive {
+    border-radius: 0.35rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Status Badge Colors */
+.badge.bg-warning {
+    color: #856404;
+    background-color: #fff3cd !important;
+}
+
+.badge.bg-success {
+    color: #155724;
+    background-color: #d4edda !important;
+}
+
+.badge.bg-danger {
+    color: #721c24;
+    background-color: #f8d7da !important;
+}
+
+.badge.bg-info {
+    color: #0c5460;
+    background-color: #d1ecf1 !important;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal.show {
+    animation: fadeIn 0.3s ease;
+}
+</style>
 @endpush

@@ -75,4 +75,9 @@ class User extends Authenticatable
     {
         return $this->hasAnyRole(['dosen', 'mahasiswa']);
     }
+
+    public function peminjaman()
+    {
+        return $this->hasMany(Peminjaman::class);
+    }
 }

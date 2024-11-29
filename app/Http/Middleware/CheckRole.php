@@ -27,5 +27,14 @@ class CheckRole
         }
         // Dosen dan mahasiswa diarahkan ke user.dashboard
         return redirect()->route('user.dashboard');
+        
+        $userRole = strtolower(Auth::user()->role);
+
+        if (in_array($userRole, array_map('strtolower', $Roles))) {
+            return $next($request);
+        }
+
+        abort(403, 'Akses ditolak.');
     }
+    
 }

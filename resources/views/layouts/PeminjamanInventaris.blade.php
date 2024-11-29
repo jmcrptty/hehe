@@ -43,23 +43,23 @@
                                 <div class="mb-3">
                                     <label class="form-label">Tanggal Peminjaman</label>
                                     <input type="text" class="form-control" value="{{ now()->format('d/m/Y') }}" readonly>
+                                    <input type="hidden" name="tanggal_pinjam" value="{{ now()->format('Y-m-d') }}">
                                 </div>
                                 <div class="mb-3" id="tanggalKembaliContainer" style="display: none;">
-                                    <label class="form-label">Tanggal Pengembalian</label>
-                                    <input type="date" class="form-control" name="tanggal_kembali" 
+                                    <label class="form-label">Tanggal Pengembalian <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" name="tanggal_kembali" id="tanggalKembali" 
                                            min="{{ now()->addDay()->format('Y-m-d') }}">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Ganti bagian pencarian barang -->
+                        <!-- Pencarian Barang -->
                         <div class="row mb-4">
                             <div class="col-md-8">
                                 <div class="mb-3">
                                     <label class="form-label">Cari Barang</label>
                                     <div class="search-container">
                                         <input type="text" class="form-control" id="searchInput" placeholder="Ketik untuk mencari barang..." autocomplete="off">
-                                        <input type="hidden" name="item_id" id="selectedItemId" required>
                                         <div class="search-results" id="searchResults" style="display: none;">
                                             <!-- Hasil pencarian akan muncul di sini -->
                                         </div>
@@ -69,86 +69,29 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label">Jumlah Peminjaman</label>
-                                    <input type="number" class="form-control" name="quantity" min="1" value="1">
+                                    <input type="number" class="form-control" id="itemQuantity" min="1" value="1">
                                     <small class="text-muted">Stok tersedia: <span id="availableStock">0</span></small>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Setelah bagian pencarian barang, tambahkan card barang terpilih -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div id="selectedItemCard" style="display: none;">
-                                    <div class="card border">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <h6 class="mb-0">Barang yang dipilih:</h6>
-                                                    <p class="mb-0 mt-2" id="selectedItemInfo"></p>
-                                                </div>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" id="clearSelection">
-                                                    <i class="fas fa-times"></i> Hapus
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Hidden Items Container -->
+                        <div id="hiddenItemsContainer"></div>
 
-                        <!-- Tambahkan setelah card barang terpilih -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div id="selectedItemsList">
-                                    <div class="card border">
-                                        <div class="card-header bg-white">
-                                            <h6 class="mb-0">Daftar Barang yang Dipilih</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div id="emptyItemsMessage" class="text-center text-muted py-3">
-                                                Belum ada barang yang dipilih
-                                            </div>
-                                            <div id="selectedItemsContainer">
-                                                <!-- Daftar barang yang dipilih akan muncul di sini -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tambahkan setelah daftar barang yang dipilih dan sebelum tombol submit -->
+                        <!-- Daftar Barang yang Dipilih -->
                         <div class="row mb-4">
                             <div class="col-12">
                                 <div class="card border">
                                     <div class="card-header bg-white">
-                                        <h6 class="mb-0">Keterangan Peminjaman</h6>
+                                        <h6 class="mb-0">Daftar Barang yang Dipilih</h6>
                                     </div>
                                     <div class="card-body">
-                                        <textarea class="form-control" 
-                                                  name="keterangan" 
-                                                  rows="3" 
-                                                  placeholder="Tuliskan keterangan atau tujuan peminjaman barang..."></textarea>
-                                        <small class="text-muted">
-                                            Contoh: Untuk praktikum Elektronika Dasar, Untuk project akhir, dll.
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Informasi Barang -->
-                        <div id="itemInfo" class="mb-4" style="display: none;">
-                            <div class="alert alert-info">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <strong>Kategori:</strong> <span id="itemCategory"></span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong>Kondisi:</strong> <span id="itemCondition"></span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong>Tipe:</strong> <span id="itemType"></span>
+                                        <div id="emptyItemsMessage" class="text-center text-muted py-3">
+                                            Belum ada barang yang dipilih
+                                        </div>
+                                        <div id="selectedItemsContainer">
+                                            <!-- Daftar barang yang dipilih akan muncul di sini -->
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -170,7 +113,180 @@
     </div>
 </div>
 
-@push('styles')
+@push('scripts')
+<script>
+$(document).ready(function() {
+    let selectedItems = [];
+    const searchInput = $('#searchInput');
+    const searchResults = $('#searchResults');
+    const hiddenItemsContainer = $('#hiddenItemsContainer');
+    const selectedItemsContainer = $('#selectedItemsContainer');
+    const emptyItemsMessage = $('#emptyItemsMessage');
+    const tanggalKembaliContainer = $('#tanggalKembaliContainer');
+
+    // Pencarian barang
+    searchInput.on('input', function() {
+        const query = $(this).val();
+        if (query.length > 0) {
+            $.ajax({
+                url: '{{ route("peminjaman.search") }}',
+                type: 'GET',
+                data: { search: query },
+                success: function(data) {
+                    console.log('Search results:', data); // Debugging
+                    let html = '';
+                    if (data.length > 0) {
+                        data.forEach(function(item) {
+                            html += `
+                                <div class="search-item" 
+                                     data-id="${item.id}" 
+                                     data-name="${item.item_name}" 
+                                     data-stock="${item.quantity}" 
+                                     data-category-name="${item.category_name}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>${item.item_name}</strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                Kategori: <span class="badge ${item.category_name.toLowerCase() === 'barang jangka panjang' ? 'bg-warning' : 'bg-info'}">${item.category_name}</span>
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-primary">Stok: ${item.quantity}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html = '<div class="search-item">Barang tidak ditemukan</div>';
+                    }
+                    searchResults.html(html).show();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Search error:', error); // Debugging
+                    searchResults.html('<div class="search-item">Error saat mencari barang</div>').show();
+                }
+            });
+        } else {
+            searchResults.hide();
+        }
+    });
+
+    // Event handler saat memilih barang
+    $(document).on('click', '.search-item', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        const stock = $(this).data('stock');
+        const category_name = $(this).data('category-name');
+        const quantity = parseInt($('#itemQuantity').val());
+
+        if (quantity > stock) {
+            alert('Jumlah barang melebihi stok tersedia.');
+            return;
+        }
+
+        // Tambahkan item ke array
+        selectedItems.push({
+            id,
+            name,
+            quantity,
+            category_name
+        });
+
+        updateSelectedItems();
+        checkLongTermItems();
+
+        searchResults.hide();
+        searchInput.val('');
+        $('#itemQuantity').val(1);
+    });
+
+    // Fungsi untuk memeriksa barang jangka panjang
+    function checkLongTermItems() {
+        const hasLongTermItem = selectedItems.some(item => 
+            item.category_name && item.category_name.toLowerCase() === 'barang jangka panjang'
+        );
+
+        if (hasLongTermItem) {
+            tanggalKembaliContainer
+                .slideDown()
+                .addClass('show')
+                .find('input')
+                .prop('required', true);
+        } else {
+            tanggalKembaliContainer
+                .slideUp()
+                .removeClass('show')
+                .find('input')
+                .prop('required', false)
+                .val('');
+        }
+    }
+
+    // Update tampilan item yang dipilih
+    function updateSelectedItems() {
+        hiddenItemsContainer.empty();
+        selectedItemsContainer.empty();
+
+        if (selectedItems.length > 0) {
+            emptyItemsMessage.hide();
+            selectedItems.forEach((item, index) => {
+                const isLongTerm = item.category_name && 
+                    item.category_name.toLowerCase() === 'barang jangka panjang';
+                
+                selectedItemsContainer.append(`
+                    <div class="selected-item p-2 border rounded mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${item.name}</strong> - Jumlah: ${item.quantity}
+                                <br>
+                                <small class="text-muted">
+                                    Kategori: <span class="badge ${isLongTerm ? 'bg-warning' : 'bg-info'}">${item.category_name}</span>
+                                    ${isLongTerm ? '<span class="text-danger ms-2">*Wajib isi tanggal pengembalian</span>' : ''}
+                                </small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItem(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                hiddenItemsContainer.append(`
+                    <input type="hidden" name="items[${index}][id]" value="${item.id}">
+                    <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
+                    <input type="hidden" name="items[${index}][category_name]" value="${item.category_name}">
+                `);
+            });
+        } else {
+            emptyItemsMessage.show();
+        }
+    }
+
+    // Fungsi untuk menghapus item
+    window.removeItem = function(index) {
+        selectedItems.splice(index, 1);
+        updateSelectedItems();
+        checkLongTermItems();
+    };
+
+    // Validasi form sebelum submit
+    $('#peminjamanForm').on('submit', function(e) {
+        const hasLongTermItem = selectedItems.some(item => 
+            item.category_name && item.category_name.toLowerCase() === 'barang jangka panjang'
+        );
+
+        if (hasLongTermItem && !$('#tanggalKembali').val()) {
+            e.preventDefault();
+            alert('Tanggal pengembalian wajib diisi karena ada barang jangka panjang!');
+            $('#tanggalKembali').focus();
+            return false;
+        }
+    });
+});
+</script>
+@endpush
+
 <style>
 .search-container {
     position: relative;
@@ -182,48 +298,27 @@
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid #dee2e6;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    margin-top: 2px;
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .search-item {
-    padding: 8px 12px;
+    padding: 12px 15px;
     cursor: pointer;
-    border-bottom: 1px solid #dee2e6;
-    background: white;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
 }
 
 .search-item:hover {
     background-color: #f8f9fa;
 }
 
-.search-item.selected {
-    background-color: #e9ecef;
-}
-
 .search-item:last-child {
     border-bottom: none;
-}
-
-#selectedItemCard {
-    transition: all 0.3s ease;
-}
-
-#selectedItemCard .card {
-    border-color: #dee2e6;
-}
-
-#selectedItemCard .card-body {
-    padding: 1rem;
-}
-
-#selectedItemInfo strong {
-    color: #495057;
 }
 
 .selected-item {
@@ -234,234 +329,21 @@
 .selected-item:hover {
     background-color: #f8f9fa;
 }
+
+.badge {
+    font-weight: normal;
+    font-size: 0.85em;
+}
+
+#tanggalKembaliContainer {
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+#tanggalKembaliContainer.show {
+    background-color: #fff8e1;
+}
 </style>
-@endpush
 
-@push('scripts')
-<script>
-$(document).ready(function() {
-    const searchInput = $('#searchInput');
-    const searchResults = $('#searchResults');
-    const selectedItemId = $('#selectedItemId');
-    let selectedItems = [];
-    let debounceTimer;
-
-    // Fungsi pencarian
-    searchInput.on('input', function() {
-        clearTimeout(debounceTimer);
-        const query = $(this).val();
-
-        debounceTimer = setTimeout(function() {
-            if (query.length > 0) {
-                $.ajax({
-                    url: '{{ route("peminjaman.search") }}',
-                    data: { search: query },
-                    success: function(data) {
-                        let html = '';
-                        if (data.length > 0) {
-                            data.forEach(function(item) {
-                                console.log('Item data:', item);
-                                html += `
-                                    <div class="search-item" 
-                                         data-id="${item.id}" 
-                                         data-max="${item.quantity}"
-                                         data-category="${item.category_name}">
-                                        [${item.item_code}] ${item.item_name} - Stok: ${item.quantity} ${item.unit}
-                                    </div>
-                                `;
-                            });
-                        } else {
-                            html = '<div class="search-item">Barang tidak ditemukan</div>';
-                        }
-                        searchResults.html(html).show();
-                    }
-                });
-            } else {
-                searchResults.hide();
-            }
-        }, 300);
-    });
-
-    // Update fungsi pilih item
-    $(document).on('click', '.search-item', function() {
-        if ($(this).data('id')) {
-            if (selectedItems.length >= 3) {
-                alert('Maksimal 3 barang yang dapat dipinjam!');
-                return;
-            }
-
-            const itemId = $(this).data('id');
-            
-            if (selectedItems.some(item => item.id === itemId)) {
-                alert('Barang ini sudah dipilih!');
-                return;
-            }
-
-            const itemCode = $(this).text().match(/\[(.*?)\]/)[1];
-            const itemName = $(this).text().split(']')[1].split('-')[0].trim();
-            const maxStock = $(this).data('max');
-            const itemCategory = $(this).data('category');
-
-            console.log('Selected item data:', {
-                id: itemId,
-                code: itemCode,
-                name: itemName,
-                maxStock: maxStock,
-                category: itemCategory
-            });
-
-            selectedItems.push({
-                id: itemId,
-                code: itemCode,
-                name: itemName,
-                maxStock: maxStock,
-                quantity: 1,
-                category: itemCategory
-            });
-
-            updateSelectedItemsList();
-            checkItemCategories();
-            searchInput.val('');
-            searchResults.hide();
-        }
-    });
-
-    // Tambah fungsi untuk hapus pilihan
-    $('#clearSelection').click(function() {
-        selectedItemId.val('');
-        $('#selectedItemCard').slideUp();
-        $('#availableStock').text('0');
-        $('input[name="quantity"]').val(1);
-    });
-
-    // Tutup hasil pencarian saat klik di luar
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('.search-container').length) {
-            searchResults.hide();
-        }
-    });
-
-    // Fungsi untuk update tampilan daftar barang
-    function updateSelectedItemsList() {
-        const container = $('#selectedItemsContainer');
-        const emptyMessage = $('#emptyItemsMessage');
-
-        if (selectedItems.length > 0) {
-            let html = '';
-            selectedItems.forEach((item, index) => {
-                html += `
-                    <div class="selected-item mb-3 p-3 border rounded">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>[${item.code}]</strong> ${item.name}
-                                <br>
-                                <small class="text-muted">Kategori: ${item.category}</small>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <div class="me-3">
-                                    <label class="me-2">Jumlah:</label>
-                                    <input type="number" 
-                                           class="form-control form-control-sm d-inline-block" 
-                                           style="width: 80px"
-                                           name="items[${item.id}]" 
-                                           value="${item.quantity}"
-                                           min="1"
-                                           max="${item.maxStock}"
-                                           onchange="updateQuantity(${index}, this.value)">
-                                    <small class="text-muted ms-2">Stok: ${item.maxStock}</small>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItem(${index})">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            container.html(html);
-            emptyMessage.hide();
-            container.show();
-        } else {
-            container.hide();
-            emptyMessage.show();
-        }
-    }
-
-    // Fungsi untuk update quantity
-    window.updateQuantity = function(index, value) {
-        value = parseInt(value);
-        const maxStock = selectedItems[index].maxStock;
-        
-        if (value > maxStock) {
-            alert('Jumlah melebihi stok tersedia!');
-            value = maxStock;
-        }
-        if (value < 1) value = 1;
-        
-        selectedItems[index].quantity = value;
-        updateSelectedItemsList();
-    }
-
-    // Fungsi untuk hapus item
-    window.removeItem = function(index) {
-        selectedItems.splice(index, 1);
-        updateSelectedItemsList();
-        checkItemCategories();
-    }
-
-    // Update fungsi checkItemCategories
-    function checkItemCategories() {
-        const hasLongTermItem = selectedItems.some(item => 
-            item.category === 'Barang Jangka Panjang'
-        );
-        
-        console.log('Selected items:', selectedItems);
-        console.log('Has long term item:', hasLongTermItem);
-
-        const tanggalKembaliContainer = $('#tanggalKembaliContainer');
-        const tanggalKembaliInput = $('input[name="tanggal_kembali"]');
-
-        if (hasLongTermItem) {
-            tanggalKembaliContainer.show();
-            tanggalKembaliInput.prop('required', true);
-        } else {
-            tanggalKembaliContainer.hide();
-            tanggalKembaliInput.prop('required', false);
-            tanggalKembaliInput.val('');
-        }
-    }
-
-    // Update form validation
-    $('#peminjamanForm').on('submit', function(e) {
-        e.preventDefault();
-
-        if (selectedItems.length === 0) {
-            alert('Silakan pilih minimal satu barang!');
-            return;
-        }
-
-        const hasLongTermItem = selectedItems.some(item => 
-            item.category.toLowerCase() === 'barang jangka panjang'
-        );
-        if (hasLongTermItem) {
-            let tanggalKembali = new Date($('input[name="tanggal_kembali"]').val());
-            let today = new Date();
-            
-            if (!$('input[name="tanggal_kembali"]').val()) {
-                alert('Tanggal pengembalian harus diisi untuk barang jangka panjang!');
-                return;
-            }
-            
-            if (tanggalKembali <= today) {
-                alert('Tanggal pengembalian harus lebih dari hari ini!');
-                return;
-            }
-        }
-
-        // Submit form jika validasi berhasil
-        this.submit();
-    });
-});
-</script>
-@endpush
 @endsection

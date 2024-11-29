@@ -10,22 +10,37 @@ class DashboardController extends Controller
 {
     public function userDashboard()
     {
-        // Ambil peminjaman terbaru dari user yang sedang login
-        $peminjaman = Peminjaman::where('user_id', Auth::id())
-                               ->with(['user', 'items'])
-                               ->latest()
-                               ->first();
+        $user = Auth::user();
+        
+        // Ambil peminjaman terkini
+        $peminjamanTerkini = Peminjaman::where('user_id', $user->id)
+            ->with('items')
+            ->latest()
+            ->first();
+        
+        // Ambil semua riwayat peminjaman user
+        $riwayatPeminjaman = Peminjaman::where('user_id', $user->id)
+            ->with('items')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('user.dashboard', compact('peminjaman'));
+        return view('user.dashboard', compact('riwayatPeminjaman', 'peminjamanTerkini'));
     }
 
     public function adminDashboard()
     {
-        // Ambil semua peminjaman untuk admin, urutkan berdasarkan yang terbaru
+        // Ambil peminjaman aktif (yang belum selesai/ditolak)
         $peminjaman = Peminjaman::with(['user', 'items'])
-                               ->orderBy('created_at', 'desc')
-                               ->get();
+            ->whereNotIn('status', ['selesai', 'ditolak'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('admin.dashboard', compact('peminjaman'));
+        // Ambil riwayat peminjaman (yang sudah selesai/ditolak)
+        $riwayatPeminjaman = Peminjaman::with(['user', 'items'])
+            ->whereIn('status', ['selesai', 'ditolak'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('admin.dashboard', compact('peminjaman', 'riwayatPeminjaman'));
     }
 } 

@@ -62,22 +62,19 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    @if(session('status'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            {{ session('status') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
-                    @if(isset($peminjaman))
-                        @switch($peminjaman->status)
+                    @if(isset($peminjamanTerkini))
+                        @switch($peminjamanTerkini->status)
                             @case('menunggu')
                                 <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded-3 border border-warning">
                                     <i class="fas fa-clock text-warning me-3 fs-4"></i>
                                     <div>
                                         <h6 class="mb-1">Menunggu Konfirmasi Laboran</h6>
-                                        <p class="mb-0 text-muted">Peminjaman Anda sedang ditinjau oleh laboran</p>
-                                        <small class="text-muted">Diajukan pada: {{ \Carbon\Carbon::parse($peminjaman->created_at)->format('d/m/Y H:i') }}</small>
+                                        <p class="mb-0">
+                                            @foreach($peminjamanTerkini->items as $item)
+                                                - {{ $item->item_name }} ({{ $item->pivot->quantity }})<br>
+                                            @endforeach
+                                        </p>
+                                        <small class="text-muted">Diajukan pada: {{ \Carbon\Carbon::parse($peminjamanTerkini->created_at)->format('d/m/Y H:i') }}</small>
                                     </div>
                                 </div>
                                 @break
@@ -87,8 +84,12 @@
                                     <i class="fas fa-check-circle text-success me-3 fs-4"></i>
                                     <div>
                                         <h6 class="mb-1">Peminjaman Disetujui</h6>
-                                        <p class="mb-0 text-muted">Silakan ambil barang di laboratorium</p>
-                                        <small class="text-muted">Disetujui pada: {{ \Carbon\Carbon::parse($peminjaman->updated_at)->format('d/m/Y H:i') }}</small>
+                                        <p class="mb-0">
+                                            @foreach($peminjamanTerkini->items as $item)
+                                                - {{ $item->item_name }} ({{ $item->pivot->quantity }})<br>
+                                            @endforeach
+                                        </p>
+                                        <small class="text-muted">Disetujui pada: {{ \Carbon\Carbon::parse($peminjamanTerkini->updated_at)->format('d/m/Y H:i') }}</small>
                                     </div>
                                 </div>
                                 @break
@@ -98,31 +99,83 @@
                                     <i class="fas fa-times-circle text-danger me-3 fs-4"></i>
                                     <div>
                                         <h6 class="mb-1">Peminjaman Ditolak</h6>
-                                        <p class="mb-0 text-muted">{{ $peminjaman->keterangan ?: 'Tidak ada keterangan' }}</p>
-                                        <small class="text-muted">Ditolak pada: {{ \Carbon\Carbon::parse($peminjaman->updated_at)->format('d/m/Y H:i') }}</small>
+                                        <p class="mb-0">
+                                            @foreach($peminjamanTerkini->items as $item)
+                                                - {{ $item->item_name }} ({{ $item->pivot->quantity }})<br>
+                                            @endforeach
+                                        </p>
+                                        <p class="mb-0 text-danger">{{ $peminjamanTerkini->keterangan ?: 'Tidak ada keterangan' }}</p>
+                                        <small class="text-muted">Ditolak pada: {{ \Carbon\Carbon::parse($peminjamanTerkini->updated_at)->format('d/m/Y H:i') }}</small>
                                     </div>
                                 </div>
                                 @break
-
-                            @default
-                                <div class="text-center text-muted py-4">
-                                    <i class="fas fa-inbox fs-4 mb-3 d-block"></i>
-                                    <p class="mb-0">Tidak ada peminjaman aktif saat ini</p>
-                                    <a href="{{ route('peminjaman.create') }}" class="btn btn-primary mt-3">
-                                        <i class="fas fa-plus me-2"></i>Buat Peminjaman Baru
-                                    </a>
-                                </div>
                         @endswitch
                     @else
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-inbox fs-4 mb-3 d-block"></i>
                             <p class="mb-0">Tidak ada peminjaman aktif saat ini</p>
-                            <a href="{{ route('peminjaman.create') }}" class="btn btn-primary mt-3">
+                            <a href="{{ route('PeminjamanInventaris') }}" class="btn btn-primary mt-3">
                                 <i class="fas fa-plus me-2"></i>Buat Peminjaman Baru
                             </a>
                         </div>
                     @endif
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tambahkan Riwayat Peminjaman -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-history me-2"></i>Riwayat Peminjaman
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal Pinjam</th>
+                            <th>Barang</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($riwayatPeminjaman as $index => $peminjaman)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_pinjam)->format('d/m/Y') }}</td>
+                                <td>
+                                    @foreach($peminjaman->items as $item)
+                                        - {{ $item->item_name }} ({{ $item->pivot->quantity }})<br>
+                                    @endforeach
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 
+                                        $peminjaman->status == 'menunggu' ? 'warning' : 
+                                        ($peminjaman->status == 'disetujui' ? 'success' : 'danger') 
+                                    }}">
+                                        {{ ucfirst($peminjaman->status) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    @if($peminjaman->status == 'ditolak')
+                                        <small class="text-danger">{{ $peminjaman->keterangan }}</small>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Belum ada riwayat peminjaman</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -147,6 +200,17 @@
     function clearWelcomeState() {
         localStorage.removeItem('welcomeDismissed');
     }
+
+    $(document).ready(function() {
+        $('#historyTable').DataTable({
+            "pageLength": 10,
+            "ordering": true,
+            "order": [[1, 'desc']], // Urutkan berdasarkan tanggal pinjam
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
+            }
+        });
+    });
 </script>
 @endpush
 @endsection

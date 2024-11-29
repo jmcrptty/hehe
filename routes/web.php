@@ -28,12 +28,13 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:dosen,mahasiswa'])->group(function () {
         Route::get('/user/dashboard', [DashboardController::class, 'userDashboard'])->name('user.dashboard');
         Route::get('/PeminjamanInventaris', [PeminjamanController::class, 'index'])->name('PeminjamanInventaris');
-        Route::get('/peminjaman/search', [PeminjamanController::class, 'searchItems'])->name('peminjaman.search');
+        Route::get('/peminjaman/search', [PeminjamanController::class, 'searchItems'])
+            ->name('peminjaman.search')
+            ->middleware(['auth', 'role:dosen,mahasiswa']);
         Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
         Route::get('/InformasiInventaris', [ItemController::class, 'index'])->name('InformasiInventaris');
         Route::get('/inventory/detail/{id}', [InventoryDetailController::class, 'getDetail'])->name('inventory.detail');
         Route::get('/peminjaman/create', [PeminjamanController::class, 'create'])->name('peminjaman.create');
-        Route::get('/peminjaman/history', [PeminjamanController::class, 'history'])->name('peminjaman.history');
     });
 
     // Routes untuk admin dan super admin
@@ -60,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/KerusakanInventaris', function () {
             return view('layouts.KerusakanInventaris');
         })->name('KerusakanInventaris');
+        
+        // Peminjaman untuk admin
         Route::post('/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])->name('admin.peminjaman.approve');
         Route::post('/peminjaman/{id}/pickup', [PeminjamanController::class, 'confirmPickup'])->name('admin.peminjaman.pickup');
         Route::post('/peminjaman/{id}/return', [PeminjamanController::class, 'return'])->name('admin.peminjaman.return');
@@ -71,12 +74,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-// Routes untuk admin
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::post('/admin/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])->name('admin.peminjaman.approve');
-    Route::post('/admin/peminjaman/{id}/reject', [PeminjamanController::class, 'reject'])->name('admin.peminjaman.reject');
 });
 
 require __DIR__.'/auth.php';

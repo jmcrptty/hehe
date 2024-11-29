@@ -11,10 +11,13 @@ return new class extends Migration
         Schema::create('peminjaman_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('peminjaman_id')->constrained('peminjaman')->onDelete('cascade');
-            $table->foreignId('item_id')->constrained('item_inventory_table_v4');
+            $table->foreignId('item_id')->constrained('item_inventory_table_v4')->onDelete('cascade');
             $table->integer('quantity');
             $table->enum('status', ['dipinjam', 'dikembalikan'])->default('dipinjam');
             $table->timestamps();
+
+            // Tambahkan indeks untuk query yang lebih cepat
+            $table->index(['peminjaman_id', 'item_id']);
         });
     }
 
@@ -22,4 +25,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('peminjaman_items');
     }
-}; 
+};
