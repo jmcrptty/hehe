@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Peminjaman extends Model
 {
     protected $table = 'peminjaman';
-
     protected $fillable = [
         'user_id',
         'tanggal_pinjam',
@@ -20,7 +19,7 @@ class Peminjaman extends Model
     const STATUS_MENUNGGU = 'menunggu';
     const STATUS_DISETUJUI = 'disetujui';
     const STATUS_DITOLAK = 'ditolak';
-    const STATUS_MENUNGGU_PENGEMBALIAN = 'menunggu_pengembalian';
+    const STATUS_MENUNGGU_PENGEMBALIAN = 'menunggu pengembalian';
     const STATUS_TERLAMBAT = 'terlambat';
     const STATUS_SELESAI = 'selesai';
 

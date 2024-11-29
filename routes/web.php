@@ -57,7 +57,6 @@ Route::middleware(['auth'])->group(function () {
         
         // Route untuk inventaris
         Route::resource('items', ItemController::class);
-        Route::resource('inventaris', ItemController::class);
         Route::get('/KerusakanInventaris', function () {
             return view('layouts.KerusakanInventaris');
         })->name('KerusakanInventaris');
